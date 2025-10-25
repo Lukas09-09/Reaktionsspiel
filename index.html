@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaktionsspiel ⚡</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #0f172a;
+      color: #e2e8f0;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #f8fafc;
+
+    }
+
+    #gameArea {
+      width: 250px;
+      height: 250px;
+      background-color: #1e293b;
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      font-size: 1.5rem;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    #message {
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+      color: #94a3b8;
+    }
+
+    #highscore {
+      margin-top: 0.8rem;
+      font-size: 1rem;
+      color: #38bdf8;
+    }
+
+    button {
+      margin-top: 2rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #3b82f6;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reaktionsspiel ⚡</h1>
+  <div id="gameArea">Bereit?</div>
+  <div id="message">Klicke auf "Start", um zu beginnen.</div>
+  <div id="highscore">🏆 Bester Wert: –</div>
+  <button onclick="startGame()">Start</button>
+
+  <footer>Erstellt von Lukas – IT-Praktikum 2025</footer>
+
+  <script>
+    let startTime, timer, countdownTimer, highscore = null;
+    const gameArea = document.getElementById('gameArea');
+    const message = document.getElementById('message');
+    const highscoreDisplay = document.getElementById('highscore');
+
+    function startGame() {
+      gameArea.textContent = '3';
+      message.textContent = 'Bereit machen...';
+      gameArea.style.backgroundColor = '#1e293b';
+      clearTimeout(timer);
+      clearInterval(countdownTimer);
+      let count = 3;
+
+      countdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          gameArea.textContent = count;
+        } else {
+          clearInterval(countdownTimer);
+          startReactionPhase();
+        }
+      }, 1000);
+    }
+
+    function startReactionPhase() {
+      gameArea.textContent = '';
+      gameArea.style.backgroundColor = '#dc2626'; // rot = warten
+      message.textContent = 'Warte auf Grün...';
+      clearTimeout(timer);
+
+      const delay = Math.random() * 3000 + 2000; // 2–5 Sekunden
+      timer = setTimeout(() => {
+        gameArea.style.backgroundColor = '#16a34a'; // grün = jetzt klicken
+        gameArea.textContent = 'JETZT!';
+        message.textContent = 'Tippe so schnell du kannst!';
+        startTime = Date.now();
+        gameArea.onclick = handleClick;
+      }, delay);
+
+      gameArea.onclick = tooSoon;
+    }
+
+    function tooSoon() {
+      clearTimeout(timer);
+      clearInterval(countdownTimer);
+      gameArea.style.backgroundColor = '#1e293b';
+      gameArea.textContent = '❌';
+      message.textContent = 'Zu früh! Versuch’s nochmal.';
+      gameArea.onclick = null;
+    }
+
+    function handleClick() {
+      const reactionTime = Date.now() - startTime;
+      gameArea.style.backgroundColor = '#1e293b';
+      gameArea.textContent = `${reactionTime} ms`;
+      message.textContent = 'Deine Reaktionszeit!';
+
+      if (highscore === null || reactionTime < highscore) {
+        highscore = reactionTime;
+        highscoreDisplay.textContent = `🏆 Bester Wert: ${highscore} ms`;
+      }
+
+      gameArea.onclick = null;
+    }
+  </script>
+</body>
+</html>
+
